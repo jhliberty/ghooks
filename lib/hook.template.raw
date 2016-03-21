@@ -3,9 +3,21 @@
 
 (function () {
   try { require('ghooks'); }
-  catch (e) { return warnAboutGHooks(); }
+  catch (e) { return trySubmodulePath(); }
   require('ghooks')(__dirname, __filename);
 })();
+
+function trySubmodulePath () {
+  var sep = require('path').sep;
+  var location = __dirname.split(sep);
+  var resolve = require('path').resolve;
+  var submoduleName = location[location.length - 2];
+  var dir = resolve(location.slice(0, location.length-4)
+              .join(sep), submoduleName, 'node_modules', 'ghooks');
+  try { require(dir); }
+  catch (e) { return warnAboutGHooks(); }
+  require(dir)(__dirname, __filename);
+}
 
 function warnAboutGHooks () { console.warn(
   'ghooks not found!\n' +
